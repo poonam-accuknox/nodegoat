@@ -1,0 +1,31 @@
+name: AccuKnox SBOM Scan
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sbom-scan:
+    name: Build and scan NodeGoat
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout NodeGoat repository
+        uses: actions/checkout@v4
+
+      - name: Build NodeGoat container image
+        run: docker build -t nodegoat:latest .
+
+      - name: Run AccuKnox SBOM scan
+        uses: accuknox/accuknox-code-analysis@v1.0.0
+        with:
+          scan_type: "sbom"
+          accuknox_token: ${{ secrets.ACCUKNOX_TOKEN }}
+          accuknox_endpoint: ${{ secrets.ACCUKNOX_ENDPOINT }}
+          accuknox_label: ${{ secrets.ACCUKNOX_LABEL }}
+          sbom_scan_type: "image"
+          sbom_image_ref: "nodegoat:latest"
+          sbom_project_name: "testbom"
+          soft_fail: true
